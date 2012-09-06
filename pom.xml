@@ -25,6 +25,26 @@
       <url>http://repo.jenkins-ci.org/public/</url>
     </pluginRepository>
   </pluginRepositories>
+  
+
+
+  <scm>
+    <connection>scm:git:git://github.com/jenkinsci/testswarm-plugin.git</connection>
+    <developerConnection>scm:git:git@github.com:jenkinsci/testswarm-plugin.git</developerConnection>
+    <url>https://github.com/jenkinsci/testswarm-plugin</url>
+  </scm>
+
+  <developers>
+        <developer>
+            <id>keivnnilson</id>
+            <name>Kevin Nilson</name>
+            <organization>javaclimber.com</organization>
+            <url>http://www.javaclimber.com</url>
+            <roles>
+                <role>bossman</role>
+            </roles>
+        </developer>
+    </developers>
   	<dependencies>
   		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
