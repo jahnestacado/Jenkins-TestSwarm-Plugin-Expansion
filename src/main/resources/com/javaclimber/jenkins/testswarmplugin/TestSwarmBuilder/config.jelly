@@ -36,7 +36,7 @@
   	</f:entry>  
   	
    	<f:entry title="Number of Browsers Runs Must Pass In">
-		<f:textbox field="minimumPassing" default="2" clazz="required" checkMessage="${%mandatory.minimumPassing}" value="${instance.minimumPassing}"/>
+		<f:textbox field="minimumPassing" default="1" clazz="required" checkMessage="${%mandatory.minimumPassing}" value="${instance.minimumPassing}"/>
   	</f:entry>  	  	
 	
 	<f:entry title="Runs">
@@ -65,6 +65,10 @@
         </table>
       </f:repeatable>          
 	</f:entry>
+	
+		<f:entry title="Test Suites source directory">
+		<f:textbox field="testuitesDir" clazz="required" checkMessage="${%mandatory.testswarmServerUrl}" value="${instance.testuitesDir}"/>
+  	</f:entry>
 	  					
 </j:jelly>
 				

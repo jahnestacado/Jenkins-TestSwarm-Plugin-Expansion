@@ -86,7 +86,24 @@ public class TestSwarmBuilder extends Builder {
 
 	// test swarm server url
 	private String testswarmServerUrl;
+	
+	
+	
+	/*
+	 * 
+	 */
+	
+	
+	// Test Suites source dir path
+	private String testsuitesDir;
 
+	
+	/*
+	 * 
+	 */
+	
+	
+	
 	/*
 	 * How frequent this plugin will hit the testswarm job url to know about
 	 * test suite results
@@ -123,7 +140,7 @@ public class TestSwarmBuilder extends Builder {
 			String userName, String authToken, String maxRuns,
 			String chooseBrowsers, String pollingIntervalInSecs,
 			String timeOutPeriodInMins, String minimumPassing,
-			List<TestSuiteData> testSuiteList) {
+			List<TestSuiteData> testSuiteList, String testsuitesDir) {
 
 		this.testswarmServerUrl = testswarmServerUrl;
 		this.jobName = jobName;
@@ -138,6 +155,7 @@ public class TestSwarmBuilder extends Builder {
 				.toArray(new TestSuiteData[testSuiteList.size()]);
 		// this.testTypeConfig = testTypeConfig;
 		this.resultsAnalyzer = new TestSwarmDecisionMaker();
+		this.testsuitesDir = testsuitesDir;
 
 	}
 
@@ -208,6 +226,9 @@ public class TestSwarmBuilder extends Builder {
 		listener.getLogger().println("");
 		listener.getLogger()
 				.println("Launching TestSwarm Integration Suite...");
+		
+		
+		listener.getLogger().println(testsuitesDir);
 
 		testswarmServerUrlCopy = new String(testswarmServerUrl);
 

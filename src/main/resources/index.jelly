@@ -36,7 +36,7 @@
   	</f:entry>
   	
   	<f:entry title="Timeout Period (in mins)">
-		<f:textbox field="timeOutPeriodInMins" default="2" clazz="required" checkMessage="${%mandatory.timeOutPeriodInMins}" value="${instance.timeOutPeriodInMins}"/>
+		<f:textbox field="timeOutPeriodInMins" default="1" clazz="required" checkMessage="${%mandatory.timeOutPeriodInMins}" value="${instance.timeOutPeriodInMins}"/>
   	</f:entry>  	  	
 	
 	<f:entry title="Test Suite">
@@ -65,6 +65,10 @@
         </table>
       </f:repeatable>          
 	</f:entry>
+	
+		<f:entry title="Test Suites source directory">
+		<f:textbox field="testuitesDir" clazz="required" checkMessage="${%mandatory.testswarmServerUrl}" value="${instance.testuitesDir}"/>
+  	</f:entry>
 	  					
 </j:jelly>
 				
