@@ -39,6 +39,16 @@
 		<f:textbox field="minimumPassing" default="1" clazz="required" checkMessage="${%mandatory.minimumPassing}" value="${instance.minimumPassing}"/>
   	</f:entry>  	  	
 	
+	
+		
+	<f:entry title="Project root directory">
+		<f:textbox field="projectRootDir" clazz="required" checkMessage="${%mandatory.projectRootDir}" value="${instance.projectRootDir}"/>
+  	</f:entry>
+  	
+  		<f:entry title="Include test-container directories">
+		<f:textbox field="testContainerDirs" clazz="required" checkMessage="${%mandatory.testContainerDirs}" value="${instance.testContainerDirs}"/>
+  	</f:entry>
+	
 	<f:entry title="Runs">
       <f:repeatable var="testSuiteData" name="testSuiteList" items="${instance.testSuiteList}"
                     noAddButton="true" minimum="1">
@@ -66,9 +76,10 @@
       </f:repeatable>          
 	</f:entry>
 	
-		<f:entry title="Test Suites source directory">
-		<f:textbox field="testuitesDir" clazz="required" checkMessage="${%mandatory.testswarmServerUrl}" value="${instance.testuitesDir}"/>
-  	</f:entry>
+
+  	
+  	
+
 	  					
 </j:jelly>
 				

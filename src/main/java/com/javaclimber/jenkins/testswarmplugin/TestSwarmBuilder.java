@@ -95,7 +95,8 @@ public class TestSwarmBuilder extends Builder {
 	
 	
 	// Test Suites source dir path
-	private String testsuitesDir;
+	private String projectRootDir;
+	private String testContainerDirs;
 
 	
 	/*
@@ -140,7 +141,7 @@ public class TestSwarmBuilder extends Builder {
 			String userName, String authToken, String maxRuns,
 			String chooseBrowsers, String pollingIntervalInSecs,
 			String timeOutPeriodInMins, String minimumPassing,
-			List<TestSuiteData> testSuiteList, String testsuitesDir) {
+			List<TestSuiteData> testSuiteList, String projectRootDir, String testContainerDirs) {
 
 		this.testswarmServerUrl = testswarmServerUrl;
 		this.jobName = jobName;
@@ -155,7 +156,8 @@ public class TestSwarmBuilder extends Builder {
 				.toArray(new TestSuiteData[testSuiteList.size()]);
 		// this.testTypeConfig = testTypeConfig;
 		this.resultsAnalyzer = new TestSwarmDecisionMaker();
-		this.testsuitesDir = testsuitesDir;
+		this.projectRootDir = projectRootDir;
+		this.testContainerDirs = testContainerDirs;
 
 	}
 
@@ -228,7 +230,8 @@ public class TestSwarmBuilder extends Builder {
 				.println("Launching TestSwarm Integration Suite...");
 		
 		
-		listener.getLogger().println(testsuitesDir);
+		listener.getLogger().println(projectRootDir);
+		listener.getLogger().println(testContainerDirs);
 
 		testswarmServerUrlCopy = new String(testswarmServerUrl);
 
@@ -584,7 +587,6 @@ public class TestSwarmBuilder extends Builder {
 			out.close();
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -602,7 +604,7 @@ public class TestSwarmBuilder extends Builder {
 				this.testswarmServerUrlCopy, env);
 
 		for (int i = testSuiteListCopy.length - 1; i >= 0; i--) {
-			// Ignore testcase if disbled
+			// Ignore testcase if disabled
 			if (!testSuiteListCopy[i].isDisableTest()) {
 				testSuiteListCopy[i].setTestName(Util.replaceMacro(
 						testSuiteListCopy[i].getTestName(), varResolver));
