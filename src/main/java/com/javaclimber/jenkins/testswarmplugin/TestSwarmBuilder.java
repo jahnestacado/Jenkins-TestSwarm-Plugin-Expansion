@@ -2,12 +2,15 @@ package com.javaclimber.jenkins.testswarmplugin;
 
 import hudson.EnvVars;
 import hudson.Extension;
+import hudson.FilePath;
+import hudson.FilePath.FileCallable;
 import hudson.Launcher;
 import hudson.Util;
 import hudson.model.BuildListener;
 import hudson.model.Result;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
+import hudson.remoting.VirtualChannel;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.FormValidation;
@@ -15,6 +18,7 @@ import hudson.util.VariableResolver;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -47,6 +51,11 @@ import org.tap4j.producer.TapProducer;
 import org.tap4j.util.DirectiveValues;
 import org.tap4j.util.StatusValues;
 
+import com.aimms.jenkins.testswarmplugin.extension.Auxiliaries;
+import com.aimms.jenkins.testswarmplugin.extension.TestDirPathFiltering;
+import com.aimms.jenkins.testswarmplugin.extension.TestSuiteDataExpansion;
+import com.aimms.jenkins.testswarmplugin.extension.TestSuiteURLGenerator;
+
 /**
  * This is plugin is responsible for integrating TestSwarm into jenkins. It will
  * take all test case urls and post it to TestSwarm server
@@ -54,7 +63,7 @@ import org.tap4j.util.StatusValues;
  * @author kevinnilson
  * 
  */
-public class TestSwarmBuilder extends Builder {
+public class TestSwarmBuilder extends Builder implements Serializable {
 	private ObjectMapper mapper = new ObjectMapper();
 
 	protected final String CHAR_ENCODING = "iso-8859-1";
@@ -86,25 +95,7 @@ public class TestSwarmBuilder extends Builder {
 
 	// test swarm server url
 	private String testswarmServerUrl;
-	
-	
-	
-	/*
-	 * 
-	 */
-	
-	
-	// Test Suites source dir path
-	private String projectRootDir;
-	private String testContainerDirs;
 
-	
-	/*
-	 * 
-	 */
-	
-	
-	
 	/*
 	 * How frequent this plugin will hit the testswarm job url to know about
 	 * test suite results
@@ -126,6 +117,12 @@ public class TestSwarmBuilder extends Builder {
 
 	private TestSwarmDecisionMaker resultsAnalyzer;
 
+	private String projectRootDir;
+	private String testContainerDirs;
+	private String baseURL;
+	private String logFilePath;
+	private String testFolderName;
+
 	public static final int UNKNOWN = 0;
 	public static final int ALL_PASSING = 1;
 	public static final int IN_PROGRESS_ENOUGH_PASSING_NO_ERRORS = 2;
@@ -141,7 +138,9 @@ public class TestSwarmBuilder extends Builder {
 			String userName, String authToken, String maxRuns,
 			String chooseBrowsers, String pollingIntervalInSecs,
 			String timeOutPeriodInMins, String minimumPassing,
-			List<TestSuiteData> testSuiteList, String projectRootDir, String testContainerDirs) {
+			List<TestSuiteData> testSuiteList, String projectRootDir,
+			String testContainerDirs, String testFolderName, String baseURL,
+			String logFilePath) {
 
 		this.testswarmServerUrl = testswarmServerUrl;
 		this.jobName = jobName;
@@ -154,10 +153,14 @@ public class TestSwarmBuilder extends Builder {
 		this.minimumPassing = minimumPassing;
 		this.testSuiteList = testSuiteList
 				.toArray(new TestSuiteData[testSuiteList.size()]);
-		// this.testTypeConfig = testTypeConfig;
 		this.resultsAnalyzer = new TestSwarmDecisionMaker();
-		this.projectRootDir = projectRootDir;
+
+		this.projectRootDir = Auxiliaries
+				.transformedRootDirPath(projectRootDir);
 		this.testContainerDirs = testContainerDirs;
+		this.baseURL = baseURL;
+		this.logFilePath = logFilePath;
+		this.testFolderName = testFolderName;
 
 	}
 
@@ -221,6 +224,81 @@ public class TestSwarmBuilder extends Builder {
 		return (DescriptorImpl) super.getDescriptor();
 	}
 
+	private static TestSuiteData getObject(String testName, String testUrl) {
+		return new TestSuiteData(testName, testUrl, true, false);
+	}
+
+	private static class RetrieveRemoteWorkspaceSubDirs implements
+			FileCallable<List<String>> {
+		private static final long serialVersionUID = 1L;
+		private List<String> allSubDirPaths = new ArrayList<String>();
+
+		@Override
+		public List<String> invoke(File file, VirtualChannel channel)
+				throws IOException, InterruptedException {
+			String sourceDir = file.getAbsolutePath();
+			List<String> subDirs = getSubDirNames(sourceDir);
+
+			List<String> topLevelDirPaths = new ArrayList<String>();
+			for (int i = 0; i <= subDirs.size() - 1; i++) {
+				topLevelDirPaths.add(sourceDir + "/" + subDirs.get(i));
+			}
+
+			retrieveAllSubDirPaths(topLevelDirPaths);
+			return allSubDirPaths;
+
+		}
+
+		private void retrieveAllSubDirPaths(List<String> topLevelDirPaths) {
+			for (String topDirPath : topLevelDirPaths) {
+				retrieveSubDirPaths(topDirPath);
+			}
+		}
+
+		private void retrieveSubDirPaths(String parentDir) {
+			List<String> sDirs = getSubDirNames(parentDir);
+			if (!sDirs.isEmpty()) {
+				for (String sDir : sDirs) {
+					retrieveSubDirPaths(parentDir + "/" + sDir);
+				}
+
+			} else {
+				allSubDirPaths.add(parentDir);
+			}
+		}
+
+		public List<String> getSubDirNames(String parentDir) {
+			File file = new File(parentDir);
+			String[] directories = file.list(new FilenameFilter() {
+				@Override
+				public boolean accept(File current, String name) {
+					return new File(current, name).isDirectory();
+				}
+			});
+
+			return stringArrayToList(directories);
+		}
+
+		private List<String> stringArrayToList(String[] array) {
+			List<String> list = new ArrayList<String>();
+			for (String s : array) {
+				if (checkIfDirMustBeIncluded(s)) {
+					list.add(s);
+				}
+			}
+			return list;
+
+		}
+
+		private boolean checkIfDirMustBeIncluded(String dirName) {
+			if (dirName.startsWith("."))
+				return false;
+
+			return true;
+
+		}
+	}
+
 	@Override
 	public boolean perform(AbstractBuild build, Launcher launcher,
 			BuildListener listener) throws InterruptedException, IOException {
@@ -228,10 +306,47 @@ public class TestSwarmBuilder extends Builder {
 		listener.getLogger().println("");
 		listener.getLogger()
 				.println("Launching TestSwarm Integration Suite...");
+
+		FilePath remoteWorkspace = new FilePath(build.getWorkspace(), "");
+		List<String> allSubDirs = remoteWorkspace.act(new RetrieveRemoteWorkspaceSubDirs());
+
+		// listener.getLogger().println(r);
+
 		
-		
-		listener.getLogger().println(projectRootDir);
-		listener.getLogger().println(testContainerDirs);
+		 
+		  TestDirPathFiltering testDirPaths = new TestDirPathFiltering(
+		  allSubDirs, projectRootDir, testFolderName);
+		  
+		  // Bind baseURL with test suites List<String> digestibleURLs =
+		  List<String> testSuitesURLs = TestSuiteURLGenerator.getURLs(baseURL, testDirPaths.getFilteredPaths());
+		  
+		  List<TestSuiteData> testSuiteDynamicList = new ArrayList<TestSuiteData>();
+		  
+		  for (String url : testSuitesURLs) { 
+			  String name = url.replace(baseURL, "").replace( "/" + testFolderName, ""); //
+		 // testSuiteDynamicList.add(new TestSuiteDataExpansion(name,url));
+		  testSuiteDynamicList.add(getObject(name, url)); 
+		  listener.getLogger().println(url); 
+		  }
+		  
+		  listener.getLogger().println(projectRootDir);
+		  listener.getLogger().println(testContainerDirs);
+		  listener.getLogger().println(baseURL);
+		  listener.getLogger().println(logFilePath);
+		  listener.getLogger().println(testFolderName);
+		  
+		  // listener.getLogger().println("DynamicList " + //
+		// testSuiteDynamicList.size()); //
+		//  listener.getLogger().println("Digest "+ digestibleURLs.size());
+		 
+		  
+		  
+//		  for (String r : r2) {
+//				listener.getLogger().println(r);
+//			}
+
+			
+		  
 
 		testswarmServerUrlCopy = new String(testswarmServerUrl);
 
@@ -242,7 +357,6 @@ public class TestSwarmBuilder extends Builder {
 			origData = (TestSuiteData) testSuiteList[i];
 			copyData = new TestSuiteData(origData.testName, origData.testUrl,
 					origData.testCacheCracker, origData.disableTest);
-			// listener.getLogger().println(copyData.testName+"  --->  "+copyData.testUrl);
 
 			if (origData.disableTest)
 				listener.getLogger().println(
@@ -587,6 +701,7 @@ public class TestSwarmBuilder extends Builder {
 			out.close();
 
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -604,7 +719,7 @@ public class TestSwarmBuilder extends Builder {
 				this.testswarmServerUrlCopy, env);
 
 		for (int i = testSuiteListCopy.length - 1; i >= 0; i--) {
-			// Ignore testcase if disabled
+			// Ignore testcase if disbled
 			if (!testSuiteListCopy[i].isDisableTest()) {
 				testSuiteListCopy[i].setTestName(Util.replaceMacro(
 						testSuiteListCopy[i].getTestName(), varResolver));
