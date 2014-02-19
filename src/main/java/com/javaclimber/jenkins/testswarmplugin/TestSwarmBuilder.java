@@ -51,7 +51,6 @@ import org.tap4j.producer.TapProducer;
 import org.tap4j.util.DirectiveValues;
 import org.tap4j.util.StatusValues;
 
-import com.aimms.jenkins.testswarmplugin.extension.Auxiliaries;
 import com.aimms.jenkins.testswarmplugin.extension.RemoteData;
 import com.aimms.jenkins.testswarmplugin.extension.TestDirPathFiltering;
 import com.aimms.jenkins.testswarmplugin.extension.TestSuiteDataExpansion;
@@ -118,8 +117,8 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 
 	private TestSwarmDecisionMaker resultsAnalyzer;
 
-	private String projectRootDir;
-	private String testContainerDirs;
+	
+	private String includedDirsString;
 	private String baseURL;
 	private String logFilePath;
 	private String testFolderName;
@@ -139,7 +138,7 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 			String userName, String authToken, String maxRuns,
 			String chooseBrowsers, String pollingIntervalInSecs,
 			String timeOutPeriodInMins, String minimumPassing,
-			List<TestSuiteData> testSuiteList, String projectRootDir,
+			List<TestSuiteData> testSuiteList,
 			String testContainerDirs, String testFolderName, String baseURL,
 			String logFilePath) {
 
@@ -156,9 +155,8 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 				.toArray(new TestSuiteData[testSuiteList.size()]);
 		this.resultsAnalyzer = new TestSwarmDecisionMaker();
 
-		this.projectRootDir = Auxiliaries
-				.transformedRootDirPath(projectRootDir);
-		this.testContainerDirs = testContainerDirs;
+	
+		this.includedDirsString = testContainerDirs;
 		this.baseURL = baseURL;
 		this.logFilePath = logFilePath;
 		this.testFolderName = testFolderName;
