@@ -18,9 +18,7 @@ public class TestDirPathFiltering {
 	}
 
 	private void filter(String path) {
-//		if (path.endsWith(testDirSuffix) && path.contains(testDirSuffix + "/")) {
-//			filteredPaths.add(getProperPath(path));
-//		} else
+
 			if (path.endsWith(testDirSuffix)) {
 			path = path.replace(sourceDir, "");
 			paths.add(path);

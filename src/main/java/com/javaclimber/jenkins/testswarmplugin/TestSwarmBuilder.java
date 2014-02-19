@@ -52,6 +52,7 @@ import org.tap4j.util.DirectiveValues;
 import org.tap4j.util.StatusValues;
 
 import com.aimms.jenkins.testswarmplugin.extension.Auxiliaries;
+import com.aimms.jenkins.testswarmplugin.extension.RemoteData;
 import com.aimms.jenkins.testswarmplugin.extension.TestDirPathFiltering;
 import com.aimms.jenkins.testswarmplugin.extension.TestSuiteDataExpansion;
 import com.aimms.jenkins.testswarmplugin.extension.TestSuiteURLGenerator;
@@ -224,30 +225,31 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 		return (DescriptorImpl) super.getDescriptor();
 	}
 
-	private static TestSuiteData getObject(String testName, String testUrl) {
-		return new TestSuiteData(testName, testUrl, true, false);
-	}
+	
 
 	private static class RetrieveRemoteWorkspaceSubDirs implements
-			FileCallable<List<String>> {
+			FileCallable<RemoteData> {
 		private static final long serialVersionUID = 1L;
-		private List<String> allSubDirPaths = new ArrayList<String>();
+		private  RemoteData rData;
 
 		@Override
-		public List<String> invoke(File file, VirtualChannel channel)
-				throws IOException, InterruptedException {
-			String sourceDir = file.getAbsolutePath();
-			List<String> subDirs = getSubDirNames(sourceDir);
+		public RemoteData invoke(File file, VirtualChannel channel)throws IOException, InterruptedException {
+			
+			String rootDir = file.getAbsolutePath();
+			rData = new RemoteData(rootDir);
+			List<String> subDirs = getSubDirNames(rootDir);
 
 			List<String> topLevelDirPaths = new ArrayList<String>();
 			for (int i = 0; i <= subDirs.size() - 1; i++) {
-				topLevelDirPaths.add(sourceDir + "/" + subDirs.get(i));
+				topLevelDirPaths.add(rootDir + "/" + subDirs.get(i));
 			}
 
 			retrieveAllSubDirPaths(topLevelDirPaths);
-			return allSubDirPaths;
+			return rData;
 
 		}
+		
+		
 
 		private void retrieveAllSubDirPaths(List<String> topLevelDirPaths) {
 			for (String topDirPath : topLevelDirPaths) {
@@ -263,7 +265,7 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 				}
 
 			} else {
-				allSubDirPaths.add(parentDir);
+				rData.addPath(parentDir);
 			}
 		}
 
@@ -293,7 +295,6 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 		private boolean checkIfDirMustBeIncluded(String dirName) {
 			if (dirName.startsWith("."))
 				return false;
-
 			return true;
 
 		}
@@ -308,45 +309,39 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 				.println("Launching TestSwarm Integration Suite...");
 
 		FilePath remoteWorkspace = new FilePath(build.getWorkspace(), "");
-		List<String> allSubDirs = remoteWorkspace.act(new RetrieveRemoteWorkspaceSubDirs());
+		RemoteData rData = remoteWorkspace.act(new RetrieveRemoteWorkspaceSubDirs());
+		
+		List<String> allSubDirs = rData.getAllSubDirPaths();
+        String rootDir = rData.getRootDirPath();
+		TestDirPathFiltering testDirPaths = new TestDirPathFiltering(
+				allSubDirs, rootDir, testFolderName);
+		
+		// Bind baseURL with test suites List<String> digestibleURLs =
+		List<String> testSuitesURLs = TestSuiteURLGenerator.getURLs(baseURL,
+				testDirPaths.getFilteredPaths());
+		
+		listener.getLogger().println("TESTSUITESURLS");
+		listener.getLogger().println("");
+		
 
-		// listener.getLogger().println(r);
+		List<TestSuiteData> testSuiteDynamicList = new ArrayList<TestSuiteData>();
+
+		for (String url : testSuitesURLs) {
+			String name = url.replace(baseURL, "").replace(
+					"/" + testFolderName, ""); //
+			testSuiteDynamicList.add(new TestSuiteDataExpansion(name,url));		
+		}
+		
+		
+		
+		for(TestSuiteData u : testSuiteDynamicList){
+			listener.getLogger().println(u.getTestName());
+			listener.getLogger().println(u.getTestUrl());
+			listener.getLogger().println("");
+
+		}
 
 		
-		 
-		  TestDirPathFiltering testDirPaths = new TestDirPathFiltering(
-		  allSubDirs, projectRootDir, testFolderName);
-		  
-		  // Bind baseURL with test suites List<String> digestibleURLs =
-		  List<String> testSuitesURLs = TestSuiteURLGenerator.getURLs(baseURL, testDirPaths.getFilteredPaths());
-		  
-		  List<TestSuiteData> testSuiteDynamicList = new ArrayList<TestSuiteData>();
-		  
-		  for (String url : testSuitesURLs) { 
-			  String name = url.replace(baseURL, "").replace( "/" + testFolderName, ""); //
-		 // testSuiteDynamicList.add(new TestSuiteDataExpansion(name,url));
-		  testSuiteDynamicList.add(getObject(name, url)); 
-		  listener.getLogger().println(url); 
-		  }
-		  
-		  listener.getLogger().println(projectRootDir);
-		  listener.getLogger().println(testContainerDirs);
-		  listener.getLogger().println(baseURL);
-		  listener.getLogger().println(logFilePath);
-		  listener.getLogger().println(testFolderName);
-		  
-		  // listener.getLogger().println("DynamicList " + //
-		// testSuiteDynamicList.size()); //
-		//  listener.getLogger().println("Digest "+ digestibleURLs.size());
-		 
-		  
-		  
-//		  for (String r : r2) {
-//				listener.getLogger().println(r);
-//			}
-
-			
-		  
 
 		testswarmServerUrlCopy = new String(testswarmServerUrl);
 
@@ -918,7 +913,7 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 	}
 
 	@ExportedBean
-	public static final class TestSuiteData implements Serializable {
+	public static class TestSuiteData implements Serializable {
 
 		@Exported
 		public String testName;
