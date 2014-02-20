@@ -323,10 +323,10 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 				.println("Launching TestSwarm Integration Suite...");
 
 		FilePath remoteWorkspace = new FilePath(build.getWorkspace(), "");
-		RemoteData rData = remoteWorkspace.act(new RetrieveRemoteWorkspaceSubDirs());
+		RemoteData workspaceData = remoteWorkspace.act(new RetrieveRemoteWorkspaceSubDirs());
 		
-		List<String> allSubDirs = rData.getAllSubDirPaths();
-        String rootDir = rData.getRootDirPath();
+		List<String> allSubDirs = workspaceData.getAllSubDirPaths();
+        String rootDir = workspaceData.getRootDirPath();
 		TestDirPathFiltering testDirPaths = new TestDirPathFiltering(
 				allSubDirs, rootDir, testFolderName, testContainerDirs);
 		

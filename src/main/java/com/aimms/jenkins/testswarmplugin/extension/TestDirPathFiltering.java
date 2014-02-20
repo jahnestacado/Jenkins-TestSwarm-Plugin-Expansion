@@ -48,10 +48,12 @@ public class TestDirPathFiltering {
 		return filteredPaths;
 	}
 	
-	private boolean mustBeIncluded(String path){
+	private boolean mustBeIncluded(String path) {
 		String topDir = path.split("/")[0];
-		if(includeDirList.contains(topDir)) return true;
+		if (includeDirList.contains(topDir) || includeDirList.contains(path.replace(testDirSuffix, "")) )
+			return true;
 		return false;
 	}
+
 
 }
