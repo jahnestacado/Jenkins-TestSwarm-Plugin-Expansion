@@ -118,7 +118,7 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 	private TestSwarmDecisionMaker resultsAnalyzer;
 
 	
-	private String includedDirsString;
+	private String testContainerDirs;
 	private String baseURL;
 	private String logFilePath;
 	private String testFolderName;
@@ -156,17 +156,17 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 		this.resultsAnalyzer = new TestSwarmDecisionMaker();
 
 	
-		this.includedDirsString = testContainerDirs;
+		this.testContainerDirs = testContainerDirs;
 		this.baseURL = baseURL;
 		this.logFilePath = logFilePath;
 		this.testFolderName = testFolderName;
 
 	}
 
-	@Exported
-	public TestSuiteData[] getTestSuiteList() {
-		return testSuiteList;
-	}
+//	@Exported
+//	public TestSuiteData[] getTestSuiteList() {
+//		return testSuiteList;
+//	}
 
 	/**
 	 * We'll use this from the <tt>config.jelly</tt>.
@@ -201,6 +201,23 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 
 	public String getTimeOutPeriodInMins() {
 		return timeOutPeriodInMins;
+	}
+	
+	public String getTestFolderName(){
+		return testFolderName;
+	}
+	
+	public String getTestContainerDirs(){
+		return testContainerDirs;
+	}
+	
+	public String getBaseURL(){
+		return baseURL;
+	}
+	
+	
+	public String getLogFilePath(){
+		return logFilePath;
 	}
 
 	/**
@@ -246,7 +263,6 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 			return rData;
 
 		}
-		
 		
 
 		private void retrieveAllSubDirPaths(List<String> topLevelDirPaths) {
@@ -312,7 +328,7 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 		List<String> allSubDirs = rData.getAllSubDirPaths();
         String rootDir = rData.getRootDirPath();
 		TestDirPathFiltering testDirPaths = new TestDirPathFiltering(
-				allSubDirs, rootDir, testFolderName);
+				allSubDirs, rootDir, testFolderName, testContainerDirs);
 		
 		// Bind baseURL with test suites List<String> digestibleURLs =
 		List<String> testSuitesURLs = TestSuiteURLGenerator.getURLs(baseURL,
@@ -339,7 +355,8 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 
 		}
 
-		
+	
+		testSuiteList = testSuiteDynamicList.toArray(new TestSuiteData[testSuiteDynamicList.size()]);
 
 		testswarmServerUrlCopy = new String(testswarmServerUrl);
 
