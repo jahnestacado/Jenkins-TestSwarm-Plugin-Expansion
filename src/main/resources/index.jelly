@@ -63,37 +63,7 @@
   	</table>
 </f:block>
   	
-	
-	
-	<f:entry title="Test Suite">
-	
-      <f:repeatable var="testSuiteData" name="testSuiteList" items="${instance.testSuiteList}"
-                    noAddButton="true" minimum="1">
-        <table width="100%">
-          <br/>
-          <f:entry title="Name" field="testName">
-            <f:textbox value="${testSuiteData.testName}" />
-          </f:entry>
-          <f:entry title="URL" field="testUrl">
-            <f:textbox value="${testSuiteData.testUrl}" />
-          </f:entry>          
-		  <f:entry title="Enable CacheCracker" field="testCacheCracker">
-            <f:checkbox name="testCacheCracker" checked="${testSuiteData.testCacheCracker}" default="true"/>
-          </f:entry>
-          <f:entry title="Disable Test" field="disableTest">
-            <f:checkbox name="disableTest" checked="${testSuiteData.disableTest}" />
-          </f:entry>
-		<f:entry>
-        <div align="right">
-          <input type="button" value="Add more test suites..." class="repeatable-add show-if-last"/>	
-          <input type="button" value="Delete" class="repeatable-delete show-if-not-only" style="margin-left: 1em;" />
-        </div>
-        </f:entry>
-        </table>
-      </f:repeatable>          
-	</f:entry>
-
-  	
+  
   	  	
 
 	  					

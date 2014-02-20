@@ -138,7 +138,7 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 			String userName, String authToken, String maxRuns,
 			String chooseBrowsers, String pollingIntervalInSecs,
 			String timeOutPeriodInMins, String minimumPassing,
-			List<TestSuiteData> testSuiteList,
+		//	List<TestSuiteData> testSuiteList,
 			String testContainerDirs, String testFolderName, String baseURL,
 			String logFilePath) {
 
@@ -151,8 +151,8 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 		this.pollingIntervalInSecs = pollingIntervalInSecs;
 		this.timeOutPeriodInMins = timeOutPeriodInMins;
 		this.minimumPassing = minimumPassing;
-		this.testSuiteList = testSuiteList
-				.toArray(new TestSuiteData[testSuiteList.size()]);
+	//	this.testSuiteList = testSuiteList
+	//			.toArray(new TestSuiteData[testSuiteList.size()]);
 		this.resultsAnalyzer = new TestSwarmDecisionMaker();
 
 	
