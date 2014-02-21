@@ -40,8 +40,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.export.Exported;
-import org.kohsuke.stapler.export.ExportedBean;
 import org.tap4j.model.Comment;
 import org.tap4j.model.Directive;
 import org.tap4j.model.Plan;
@@ -362,7 +360,6 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 
 	
 		testSuiteList = testSuiteDynamicList.toArray(new TestSuiteData[testSuiteDynamicList.size()]);
-
 		testswarmServerUrlCopy = new String(testswarmServerUrl);
 
 		testSuiteListCopy = new TestSuiteData[testSuiteList.length];
@@ -385,83 +382,8 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 		expandRuntimeVariables(listener, build);
 
 		// check all required parameters are entered
-		if (this.getTestswarmServerUrl() == null
-				|| this.getTestswarmServerUrl().length() == 0) {
-			listener.error("TestSwarm Server Url is mandatory");
-			build.setResult(Result.FAILURE);
-			return false;
-		}
-
-		if (this.getJobName() == null || this.getJobName().length() == 0) {
-			listener.error("Jobname is mandatory");
-			build.setResult(Result.FAILURE);
-			return false;
-		}
-
-		if (this.getUserName() == null || this.getUserName().length() == 0) {
-			listener.error("Username is mandatory");
-			build.setResult(Result.FAILURE);
-			return false;
-		}
-
-		if (this.getAuthToken() == null || this.getAuthToken().length() == 0) {
-			listener.error("Auth Token is mandatory");
-			build.setResult(Result.FAILURE);
-			return false;
-		}
-
-		if (this.getMaxRuns() == null || this.getMaxRuns().length() == 0) {
-			listener.error("Maximum number of runs is mandatory");
-			build.setResult(Result.FAILURE);
-			return false;
-		} else {
-			// Check for integer value
-			try {
-				Integer.parseInt(getMaxRuns());
-			} catch (Exception parseEx) {
-				listener.error("Maximum number of runs is not an integer");
-				build.setResult(Result.FAILURE);
-				return false;
-			}
-		}
-
-		if (this.getPollingIntervalInSecs() == null
-				|| this.getPollingIntervalInSecs().length() == 0) {
-			listener.error("Polling interval is mandatory");
-			build.setResult(Result.FAILURE);
-			return false;
-		} else {
-			// Check for integer value
-			try {
-				Integer.parseInt(getPollingIntervalInSecs());
-			} catch (Exception parseEx) {
-				listener.error("Polling interval is not an integer");
-				build.setResult(Result.FAILURE);
-				return false;
-			}
-		}
-
-		if (this.getTimeOutPeriodInMins() == null
-				|| this.getTimeOutPeriodInMins().length() == 0) {
-			listener.error("Timeout Period is mandatory");
-			build.setResult(Result.FAILURE);
-			return false;
-		} else {
-			// Check for integer value
-			try {
-				Integer.parseInt(getTimeOutPeriodInMins());
-			} catch (Exception parseEx) {
-				listener.error("Timeout period is not an integer");
-				build.setResult(Result.FAILURE);
-				return false;
-			}
-		}
-
-		if (!isValidUrl(getTestswarmServerUrl())) {
-			listener.error("Testswarm Server Url is not a valid url ! check your TestSwarm Integration Plugin configuration");
-			build.setResult(Result.FAILURE);
-			return false;
-		}
+		CheckInputFields.check(this, build, listener);
+	
 
 		try {
 
@@ -571,7 +493,7 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 			int minimumPassing, String jobFriendlyUrl) {
 		try {
 
-			List<TestSuiteData> disabledTests = new ArrayList<TestSwarmBuilder.TestSuiteData>();
+			List<TestSuiteData> disabledTests = new ArrayList<TestSuiteData>();
 			for (int i = 0; i < testSuiteListCopy.length; i++) {
 				if (testSuiteListCopy[i].isDisableTest()) {
 					disabledTests.add(testSuiteListCopy[i]);
@@ -880,59 +802,6 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 
 	}
 
-	@ExportedBean
-	public static class TestSuiteData implements Serializable {
 
-		@Exported
-		public String testName;
-
-		@Exported
-		public String testUrl;
-
-		@Exported
-		public boolean testCacheCracker;
-
-		@Exported
-		public boolean disableTest;
-
-		@DataBoundConstructor
-		public TestSuiteData(String testName, String testUrl,
-				boolean testCacheCracker, boolean disableTest) {
-			this.testName = testName;
-			this.testUrl = testUrl;
-			this.testCacheCracker = testCacheCracker;
-			this.disableTest = disableTest;
-		}
-
-		public void setTestName(String testName) {
-			this.testName = testName;
-		}
-
-		public void setTestUrl(String testUrl) {
-			this.testUrl = testUrl;
-		}
-
-		public String getTestName() {
-			return testName;
-		}
-
-		public String getTestUrl() {
-			return testUrl;
-		}
-
-		public String toString() {
-			return "==> " + testName + ", " + testUrl + ", " + testCacheCracker
-					+ "sss<==";
-		}
-
-		public boolean isTestCacheCracker() {
-			return testCacheCracker;
-		}
-
-		public boolean isDisableTest() {
-			return disableTest;
-		}
-
-	}
 
 }

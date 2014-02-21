@@ -1,6 +1,6 @@
 package com.aimms.jenkins.testswarmplugin.extension;
 
-import com.javaclimber.jenkins.testswarmplugin.TestSwarmBuilder.TestSuiteData;
+import com.javaclimber.jenkins.testswarmplugin.TestSuiteData;
 
 public class TestSuiteDataExpansion extends TestSuiteData {
 	

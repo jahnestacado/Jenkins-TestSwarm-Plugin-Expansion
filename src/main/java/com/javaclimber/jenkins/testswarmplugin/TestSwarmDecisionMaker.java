@@ -93,7 +93,7 @@ public class TestSwarmDecisionMaker {
 			return TestSwarmBuilder.IN_PROGRESS_NOT_ENOUGH_PASSING_NO_ERRORS;
 		}
 
-		Integer notstarted = runResult.get("new");
+		//Integer notstarted = runResult.get("new");
 		Integer pass = runResult.get("passed");
 		Integer progress = runResult.get("progress");
 		Integer error = runResult.get("error");
