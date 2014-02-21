@@ -1,4 +1,5 @@
 package com.aimms.jenkins.testswarmplugin.extension;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -6,16 +7,24 @@ import java.util.List;
 import java.util.Set;
 
 public class TestDirPathFiltering {
-	private Set<String> paths = new LinkedHashSet<String>(); //Don't want duplicate path-elements
+	private Set<String> paths = new LinkedHashSet<String>(); // Don't want
+																// duplicate
+																// path-elements
 	private final String testDirSuffix;
 	private final String sourceDir;
-	 private final List<String> includeDirList ;
-	 private final static String MODULE_DIVIDER_SYMBOL=",";
+	private List<String> includeDirList;
+	private final static String MODULE_DIVIDER_SYMBOL = ",";
+	private final boolean INCLUDE_ALL_DIRS;
 
-	public TestDirPathFiltering(List<String> subDirPaths, String sourceDir, String testFolderName,String  includedDirsInStrformat) {
+	public TestDirPathFiltering(List<String> subDirPaths, String sourceDir,
+			String testFolderName, String includedDirsInStrformat) {
 		this.sourceDir = sourceDir;
-		includeDirList = Arrays.asList(includedDirsInStrformat.split(MODULE_DIVIDER_SYMBOL));
-		testDirSuffix = "/"+testFolderName;
+		INCLUDE_ALL_DIRS = includeAllRootDir(includedDirsInStrformat);
+        if(!INCLUDE_ALL_DIRS){
+		includeDirList = Arrays.asList(includedDirsInStrformat
+				.split(MODULE_DIVIDER_SYMBOL));
+        }
+		testDirSuffix = "/" + testFolderName;
 		for (String subDirPath : subDirPaths) {
 			filter(subDirPath);
 		}
@@ -23,7 +32,7 @@ public class TestDirPathFiltering {
 
 	private void filter(String path) {
 		path = path.replace(sourceDir, "");
-		if (mustBeIncluded(path)) {
+		if (INCLUDE_ALL_DIRS || mustBeIncluded(path)) {
 			if (path.endsWith(testDirSuffix)) {
 				paths.add(path);
 
@@ -45,13 +54,19 @@ public class TestDirPathFiltering {
 		filteredPaths.addAll(paths);
 		return filteredPaths;
 	}
-	
+
 	private boolean mustBeIncluded(String path) {
 		String topDir = path.split("/")[0];
-		if (includeDirList.contains(topDir) || includeDirList.contains(path.replace(testDirSuffix, "")) )
+		if (includeDirList.contains(topDir)
+				|| includeDirList.contains(path.replace(testDirSuffix, "")))
 			return true;
 		return false;
 	}
 
+	private boolean includeAllRootDir(String includedDirsInStrformat) {
+		if (includedDirsInStrformat.equals("*"))
+			return true;
+		return false;
+	}
 
 }
