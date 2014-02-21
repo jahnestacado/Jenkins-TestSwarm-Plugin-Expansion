@@ -327,7 +327,6 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 		listener.getLogger().println("");
 		listener.getLogger()
 				.println("Launching TestSwarm Integration Suite...");
-		listener.getLogger().println(enableCacheCracker);
 
 		FilePath remoteWorkspace = new FilePath(build.getWorkspace(), "");
 		RemoteData workspaceData = remoteWorkspace.act(new RetrieveRemoteWorkspaceSubDirs());
@@ -494,13 +493,14 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 			wr.close();
 			rd.close();
 
-			int jobId = -1;
+			
 			if (result == null || "".equals(result)) {
 				listener.error("no result from job submission");
 				build.setResult(Result.FAILURE);
 				return false;
 			}
 
+			int jobId = -1;
 			ObjectMapper mapper = new ObjectMapper(); // can reuse, share
 														// globally
 			Map<String, Object> resultMap = mapper.readValue(result, Map.class);
@@ -641,43 +641,7 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 							+ resultBrowsers.get("failed")));
 					testResult.addComment(new Comment("passed - "
 							+ resultBrowsers.get("passed")));
-					// TestSet testSubset = new TestSet();
-					//
-					// int subtestIndex = 0;
-					//
-					// for (String result : resultBrowsers.keySet()) {
-					// if ("passed".equals(result)) {
-					// List<String> uas = resultBrowsers.get(result);
-					// for (String ua : uas) {
-					// TestResult subtestResult = new TestResult(
-					// StatusValues.OK, subtestIndex);
-					// subtestResult
-					// .setDescription((String) ((Map) run
-					// .get("info")).get("name")
-					// + " - " + ua);
-					// testSubset.addTestResult(subtestResult);
-					// subtestIndex++;
-					// }
-					// } else if ("failed".equals(result)) {
-					// List<String> uas = resultBrowsers.get(result);
-					// for (String ua : uas) {
-					// TestResult subtestResult = new TestResult(
-					// StatusValues.NOT_OK, subtestIndex);
-					// subtestResult
-					// .setDescription((String) ((Map) run
-					// .get("info")).get("name")
-					// + " - " + ua);
-					// testSubset.addTestResult(subtestResult);
-					// subtestIndex++;
-					// }
-					//
-					// }
-					// }
-					//
-					// if (subtestIndex > 0) {
-					// testSubset.setPlan(new Plan(subtestIndex));
-					// testResult.setSubtest(testSubset);
-					// }
+					
 				}
 
 				testResult.setDescription((String) ((Map) run.get("info"))
@@ -702,12 +666,7 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 			String tapStream = tapProducer.dump(testSet);
 			System.out.println(tapStream);
 
-			// File f = new
-			// File(build.getProject().getRootDir().getAbsolutePath()
-			// + File.separatorChar + "builds" + File.separatorChar
-			// + String.valueOf(build.getNumber()) + File.separatorChar
-			// + "tap", "tap-result.txt");
-
+		
 			File f = new File(build.getProject().getRootDir().getAbsolutePath()
 					+ File.separatorChar + "workspace", "testswarm.tap");
 
@@ -717,7 +676,6 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 			out.close();
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -735,7 +693,7 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 				this.testswarmServerUrlCopy, env);
 
 		for (int i = testSuiteListCopy.length - 1; i >= 0; i--) {
-			// Ignore testcase if disbled
+			// Ignore testcase if disabled
 			if (!testSuiteListCopy[i].isDisableTest()) {
 				testSuiteListCopy[i].setTestName(Util.replaceMacro(
 						testSuiteListCopy[i].getTestName(), varResolver));
@@ -749,17 +707,6 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 		}
 	}
 
-	private void populateStaticDataInRequestString(StringBuffer requestStr)
-			throws Exception {
-
-		// Populate static data like user credentials and other properties
-		requestStr.append("client_id=").append(CLIENT_ID).append("&state=")
-				.append(STATE).append("&job_name=")
-				.append(URLEncoder.encode(this.jobNameCopy, CHAR_ENCODING))
-				.append("&user=").append(getUserName()).append("&auth=")
-				.append(getAuthToken()).append("&max=").append(getMaxRuns())
-				.append("&browsers=").append(getChooseBrowsers());
-	}
 
 	private String buildTestSuitesQueryString() throws Exception {
 		StringBuffer requestStr = new StringBuffer();
@@ -895,7 +842,7 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 		 * This human readable name is used in the configuration screen.
 		 */
 		public String getDisplayName() {
-			return "TestSwarm Integration Test";
+			return "TestSwarm Integration Test - AIMMS Version";
 		}
 
 		@Override
