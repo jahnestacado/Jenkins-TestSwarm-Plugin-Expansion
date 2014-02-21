@@ -53,7 +53,7 @@
 		<f:textbox field="testFolderName" clazz="required" checkMessage="${%mandatory.testFolderName}" value="${instance.testFolderName}"/>
   	</f:entry>
   	
-  		<f:entry title="Base URL">
+  		<f:entry title="Server URL">
 		<f:textbox field="baseURL" clazz="required" checkMessage="${%mandatory.baseURL}" value="${instance.baseURL}"/>
   	</f:entry>
   	
@@ -61,7 +61,7 @@
             <f:checkbox name="enableCacheCracker" checked="${enableCacheCracker}" default="true"/>
           </f:entry>
   	
-  			<f:entry title="Testswarm-plugin build-log file path">
+  			<f:entry title="Append analyzed test suite paths in file:">
 		<f:textbox field="logFilePath" clazz="required" checkMessage="${%mandatory.logFilePath}" value="${instance.logFilePath}"/>
   	</f:entry>
   	</table>

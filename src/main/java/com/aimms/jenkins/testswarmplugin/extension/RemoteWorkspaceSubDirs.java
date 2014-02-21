@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RetrieveRemoteWorkspaceSubDirs implements FileCallable<RemoteData> {
+public class RemoteWorkspaceSubDirs implements FileCallable<RemoteData> {
 	private static final long serialVersionUID = 1L;
 	private RemoteData rData;
 

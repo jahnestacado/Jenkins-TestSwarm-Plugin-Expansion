@@ -47,10 +47,11 @@ import org.tap4j.util.DirectiveValues;
 import org.tap4j.util.StatusValues;
 
 import com.aimms.jenkins.testswarmplugin.extension.RemoteData;
-import com.aimms.jenkins.testswarmplugin.extension.RetrieveRemoteWorkspaceSubDirs;
+import com.aimms.jenkins.testswarmplugin.extension.RemoteWorkspaceSubDirs;
 import com.aimms.jenkins.testswarmplugin.extension.TestDirPathFiltering;
 import com.aimms.jenkins.testswarmplugin.extension.TestSuiteDataExpansion;
 import com.aimms.jenkins.testswarmplugin.extension.TestSuiteURLGenerator;
+import com.aimms.jenkins.testswarmplugin.extension.WriteToRemoteWorkspace;
 
 /**
  * This is plugin is responsible for integrating TestSwarm into jenkins. It will
@@ -255,16 +256,18 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 				.println("Launching TestSwarm Integration Suite...");
 
 		FilePath remoteWorkspace = new FilePath(build.getWorkspace(), "");
-		RemoteData workspaceData = remoteWorkspace.act(new RetrieveRemoteWorkspaceSubDirs());
+		RemoteData workspaceData = remoteWorkspace.act(new RemoteWorkspaceSubDirs());
 		
 		List<String> allSubDirs = workspaceData.getAllSubDirPaths();
         String rootDir = workspaceData.getRootDirPath();
 		TestDirPathFiltering testDirPaths = new TestDirPathFiltering(
 				allSubDirs, rootDir, testFolderName, testContainerDirs);
 		
+		List<String> testDirLocalPaths = testDirPaths.getFilteredPaths();
+		
 		// Bind baseURL with test suites List<String> digestibleURLs =
 		List<String> testSuitesURLs = TestSuiteURLGenerator.getURLs(baseURL,
-				testDirPaths.getFilteredPaths());
+				testDirLocalPaths);
 		
 		listener.getLogger().println("");
 		
@@ -278,6 +281,11 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 		}
 		
 		
+		//Save included test suites local paths in specified logFilePath
+		remoteWorkspace.act(new WriteToRemoteWorkspace(logFilePath,testDirLocalPaths));
+		listener.getLogger().println("***************   Created file that includes local test suites paths at "+logFilePath+"   ***************");
+		listener.getLogger().println("");
+
 		
 		for(TestSuiteData u : testSuiteDynamicList){
 			listener.getLogger().println(u.getTestName());
