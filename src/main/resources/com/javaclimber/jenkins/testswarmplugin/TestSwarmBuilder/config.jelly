@@ -60,6 +60,11 @@
 		<f:textbox field="baseURL" clazz="required" checkMessage="${%mandatory.baseURL}" value="${instance.baseURL}"/>
   	</f:entry>
   	
+  	 <f:entry title="Enable CacheCracker" field="enableCacheCracker">
+            <f:checkbox name="enableCacheCracker" checked="${enableCacheCracker}" default="true"/>
+          </f:entry>
+  	
+  	
   	<f:entry title="Testswarm-plugin build-log file path">
 		<f:textbox field="logFilePath" clazz="required" checkMessage="${%mandatory.logFilePath}" value="${instance.logFilePath}"/>
   	</f:entry>

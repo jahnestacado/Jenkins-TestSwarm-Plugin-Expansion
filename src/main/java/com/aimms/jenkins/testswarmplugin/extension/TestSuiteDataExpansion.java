@@ -6,11 +6,10 @@ public class TestSuiteDataExpansion extends TestSuiteData {
 	
 	
 	private static final long serialVersionUID = 1L;
-	private final static boolean testCacheCracker = true;
-	private final static boolean disableTest = false;
+	private final static boolean DISABLE_TESTS = false;
 
-	public TestSuiteDataExpansion(String testName, String testUrl) {
-		super(testName, testUrl, testCacheCracker, disableTest);
+	public TestSuiteDataExpansion(String testName, String testUrl, boolean testCacheCracker) {
+		super(testName, testUrl, testCacheCracker, DISABLE_TESTS);
 	}
 
 }

@@ -122,6 +122,7 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 	private String baseURL;
 	private String logFilePath;
 	private String testFolderName;
+	private boolean enableCacheCracker;
 
 	public static final int UNKNOWN = 0;
 	public static final int ALL_PASSING = 1;
@@ -140,7 +141,7 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 			String timeOutPeriodInMins, String minimumPassing,
 		//	List<TestSuiteData> testSuiteList,
 			String testContainerDirs, String testFolderName, String baseURL,
-			String logFilePath) {
+			String logFilePath, boolean enableCacheCracker) {
 
 		this.testswarmServerUrl = testswarmServerUrl;
 		this.jobName = jobName;
@@ -160,6 +161,7 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 		this.baseURL = baseURL;
 		this.logFilePath = logFilePath;
 		this.testFolderName = testFolderName;
+		this.enableCacheCracker = enableCacheCracker;
 
 	}
 
@@ -218,6 +220,10 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 	
 	public String getLogFilePath(){
 		return logFilePath;
+	}
+	
+	public boolean getEnableCacheCracker(){
+		return enableCacheCracker;
 	}
 
 	/**
@@ -321,6 +327,7 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 		listener.getLogger().println("");
 		listener.getLogger()
 				.println("Launching TestSwarm Integration Suite...");
+		listener.getLogger().println(enableCacheCracker);
 
 		FilePath remoteWorkspace = new FilePath(build.getWorkspace(), "");
 		RemoteData workspaceData = remoteWorkspace.act(new RetrieveRemoteWorkspaceSubDirs());
@@ -334,7 +341,6 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 		List<String> testSuitesURLs = TestSuiteURLGenerator.getURLs(baseURL,
 				testDirPaths.getFilteredPaths());
 		
-		listener.getLogger().println("TESTSUITESURLS");
 		listener.getLogger().println("");
 		
 
@@ -343,7 +349,7 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 		for (String url : testSuitesURLs) {
 			String name = url.replace(baseURL, "").replace(
 					"/" + testFolderName, ""); //
-			testSuiteDynamicList.add(new TestSuiteDataExpansion(name,url));		
+			testSuiteDynamicList.add(new TestSuiteDataExpansion(name,url,enableCacheCracker));		
 		}
 		
 		
