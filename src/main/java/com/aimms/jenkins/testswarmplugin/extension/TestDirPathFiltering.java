@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 public class TestDirPathFiltering {
-	private List<String> paths = new ArrayList<String>();
+	private Set<String> paths = new LinkedHashSet<String>(); //Don't want duplicate path-elements
 	private final String testDirSuffix;
 	private final String sourceDir;
 	 private final List<String> includeDirList ;
@@ -41,10 +41,8 @@ public class TestDirPathFiltering {
 	}
 
 	public List<String> getFilteredPaths() {
-		//Remove possible duplicate path-elements
-		Set<String> pathSet = new LinkedHashSet<String>(paths);
 		List<String> filteredPaths = new ArrayList<String>();
-		filteredPaths.addAll(pathSet);
+		filteredPaths.addAll(paths);
 		return filteredPaths;
 	}
 	
