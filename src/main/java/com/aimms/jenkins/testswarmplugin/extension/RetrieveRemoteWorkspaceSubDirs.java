@@ -63,7 +63,7 @@ public class RetrieveRemoteWorkspaceSubDirs implements FileCallable<RemoteData> 
 	private List<String> stringArrayToList(String[] array) {
 		List<String> list = new ArrayList<String>();
 		for (String s : array) {
-			if (checkIfDirMustBeIncluded(s)) {
+			if (isNotHiddenFile(s)) {
 				list.add(s);
 			}
 		}
@@ -71,7 +71,7 @@ public class RetrieveRemoteWorkspaceSubDirs implements FileCallable<RemoteData> 
 
 	}
 
-	private boolean checkIfDirMustBeIncluded(String dirName) {
+	private boolean isNotHiddenFile(String dirName) {
 		if (dirName.startsWith("."))
 			return false;
 		return true;

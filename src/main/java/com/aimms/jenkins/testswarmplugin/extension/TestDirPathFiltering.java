@@ -58,7 +58,8 @@ public class TestDirPathFiltering {
 	private boolean mustBeIncluded(String path) {
 		String topDir = path.split("/")[0];
 		if (includeDirList.contains(topDir)
-				|| includeDirList.contains(path.replace(testDirSuffix, "")))
+				|| includeDirList.contains(path.replace(testDirSuffix, ""))
+				|| shouldIncludeNonTestParentFolder(path))
 			return true;
 		return false;
 	}
@@ -66,6 +67,16 @@ public class TestDirPathFiltering {
 	private boolean includeAllRootDir(String includedDirsInStrformat) {
 		if (includedDirsInStrformat.equals("*"))
 			return true;
+		return false;
+	}
+	
+	
+	private boolean shouldIncludeNonTestParentFolder(String path){
+		for(String dirPath :includeDirList){
+			if(path.contains(dirPath)){
+				return true;
+			}
+		}
 		return false;
 	}
 
