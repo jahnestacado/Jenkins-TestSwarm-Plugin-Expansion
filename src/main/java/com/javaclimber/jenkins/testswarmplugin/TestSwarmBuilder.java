@@ -288,6 +288,9 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 
 		
 		for(TestSuiteData u : testSuiteDynamicList){
+			
+			listener.getLogger().println(workspaceData.getFQHN());
+
 			listener.getLogger().println(u.getTestName());
 			listener.getLogger().println(u.getTestUrl());
 			listener.getLogger().println("");

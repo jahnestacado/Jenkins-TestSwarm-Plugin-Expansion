@@ -17,7 +17,8 @@ public class RemoteWorkspaceSubDirs implements FileCallable<RemoteData> {
 			throws IOException, InterruptedException {
 
 		String rootDir = file.getAbsolutePath();
-		rData = new RemoteData(rootDir);
+		String fqhn = new FQHN().getFQHN();
+		rData = new RemoteData(rootDir, fqhn);
 		List<String> subDirs = getSubDirNames(rootDir);
 
 		List<String> topLevelDirPaths = new ArrayList<String>();
