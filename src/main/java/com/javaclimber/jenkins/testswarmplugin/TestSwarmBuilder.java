@@ -283,7 +283,7 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 		
 		//Save included test suites local paths in specified logFilePath
 		remoteWorkspace.act(new WriteToRemoteWorkspace(logFilePath,testDirLocalPaths));
-		listener.getLogger().println("***************   Created file that includes local test suites paths at "+logFilePath+"   ***************");
+		listener.getLogger().println("***************   Created file that includes local test suite paths that will run at "+logFilePath+"   ***************");
 		listener.getLogger().println("");
 
 		
