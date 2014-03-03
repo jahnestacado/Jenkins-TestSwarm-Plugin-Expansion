@@ -53,8 +53,8 @@
 		<f:textbox field="testFolderName" clazz="required" checkMessage="${%mandatory.testFolderName}" value="${instance.testFolderName}"/>
   	</f:entry>
   	
-  		<f:entry title="Server URL">
-		<f:textbox field="baseURL" clazz="required" checkMessage="${%mandatory.baseURL}" value="${instance.baseURL}"/>
+  		<f:entry title="Main Test Suite Path">
+		<f:textbox field="mainTestSuitePath" clazz="required" checkMessage="${%mandatory.mainTestSuitePath}" value="${instance.mainTestSuitePath}"/>
   	</f:entry>
   	
   	 	  <f:entry title="Enable CacheCracker" field="enableCacheCracker">

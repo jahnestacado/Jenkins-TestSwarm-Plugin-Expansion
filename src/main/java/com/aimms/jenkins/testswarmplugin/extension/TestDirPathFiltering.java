@@ -7,9 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 public class TestDirPathFiltering {
-	private Set<String> paths = new LinkedHashSet<String>(); // Don't want
-																// duplicate
-																// path-elements
+	private Set<String> paths = new LinkedHashSet<String>(); // Don't want duplicate path-elements
 	private final String testDirSuffix;
 	private final String sourceDir;
 	private List<String> includeDirList;
@@ -73,7 +71,7 @@ public class TestDirPathFiltering {
 	
 	private boolean shouldIncludeNonTestParentFolder(String path){
 		for(String dirPath :includeDirList){
-			if(path.contains(dirPath)){
+			if(path.contains(dirPath) && dirPath.split("/")[0].equals(path.split("/")[0])){
 				return true;
 			}
 		}

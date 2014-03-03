@@ -56,20 +56,21 @@
   	</f:entry>
   	
   	
-  		<f:entry title="Server URL">
-		<f:textbox field="baseURL" clazz="required" checkMessage="${%mandatory.baseURL}" value="${instance.baseURL}"/>
+  	<f:entry title="Main Test Suite Path">
+		<f:textbox field="mainTestSuitePath" clazz="required" checkMessage="${%mandatory.mainTestSuitePath}" value="${instance.mainTestSuitePath}"/>
   	</f:entry>
   	
-  	 <f:entry title="Enable CacheCracker" field="enableCacheCracker">
+  	 	  <f:entry title="Enable CacheCracker" field="enableCacheCracker">
             <f:checkbox name="enableCacheCracker" checked="${enableCacheCracker}" default="true"/>
           </f:entry>
   	
-  	
-  	<f:entry title="Append analyzed test suite paths in file:">
+  			<f:entry title="Append analyzed test suite paths in file:">
 		<f:textbox field="logFilePath" clazz="required" checkMessage="${%mandatory.logFilePath}" value="${instance.logFilePath}"/>
   	</f:entry>
   	</table>
 </f:block>
+  	
+  
 	
 	
 	
