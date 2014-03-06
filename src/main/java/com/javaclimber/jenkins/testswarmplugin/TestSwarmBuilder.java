@@ -114,7 +114,6 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 
 	private TestSwarmDecisionMaker resultsAnalyzer;
 
-	
 	private String testContainerDirs;
 
 	private String mainTestSuitePath;
@@ -137,10 +136,12 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 	public TestSwarmBuilder(String testswarmServerUrl, String jobName,
 			String userName, String authToken, String maxRuns,
 			String chooseBrowsers, String pollingIntervalInSecs,
-			String timeOutPeriodInMins, String minimumPassing,
-		//	List<TestSuiteData> testSuiteList,
-			String testContainerDirs, String testFolderName, String mainTestSuitePath,
-			String logFilePath, boolean enableCacheCracker) {
+			String timeOutPeriodInMins,
+			String minimumPassing,
+			// List<TestSuiteData> testSuiteList,
+			String testContainerDirs, String testFolderName,
+			String mainTestSuitePath, String logFilePath,
+			boolean enableCacheCracker) {
 
 		this.testswarmServerUrl = testswarmServerUrl;
 		this.jobName = jobName;
@@ -151,11 +152,10 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 		this.pollingIntervalInSecs = pollingIntervalInSecs;
 		this.timeOutPeriodInMins = timeOutPeriodInMins;
 		this.minimumPassing = minimumPassing;
-	//	this.testSuiteList = testSuiteList
-	//			.toArray(new TestSuiteData[testSuiteList.size()]);
+		// this.testSuiteList = testSuiteList
+		// .toArray(new TestSuiteData[testSuiteList.size()]);
 		this.resultsAnalyzer = new TestSwarmDecisionMaker();
 
-	
 		this.testContainerDirs = testContainerDirs;
 		this.mainTestSuitePath = mainTestSuitePath;
 		this.logFilePath = logFilePath;
@@ -164,10 +164,10 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 
 	}
 
-//	@Exported
-//	public TestSuiteData[] getTestSuiteList() {
-//		return testSuiteList;
-//	}
+	// @Exported
+	// public TestSuiteData[] getTestSuiteList() {
+	// return testSuiteList;
+	// }
 
 	/**
 	 * We'll use this from the <tt>config.jelly</tt>.
@@ -203,25 +203,24 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 	public String getTimeOutPeriodInMins() {
 		return timeOutPeriodInMins;
 	}
-	
-	public String getTestFolderName(){
+
+	public String getTestFolderName() {
 		return testFolderName;
 	}
-	
-	public String getTestContainerDirs(){
+
+	public String getTestContainerDirs() {
 		return testContainerDirs;
 	}
-	
-	public String getMainTestSuitePath(){
+
+	public String getMainTestSuitePath() {
 		return mainTestSuitePath;
 	}
-	
-	
-	public String getLogFilePath(){
+
+	public String getLogFilePath() {
 		return logFilePath;
 	}
-	
-	public boolean getEnableCacheCracker(){
+
+	public boolean getEnableCacheCracker() {
 		return enableCacheCracker;
 	}
 
@@ -245,10 +244,6 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 		return (DescriptorImpl) super.getDescriptor();
 	}
 
-	
-
-
-
 	@Override
 	public boolean perform(AbstractBuild build, Launcher launcher,
 			BuildListener listener) throws InterruptedException, IOException {
@@ -256,58 +251,53 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 		listener.getLogger().println("");
 		listener.getLogger()
 				.println("Launching TestSwarm Integration Suite...");
-		
-
-	
 
 		FilePath remoteWorkspace = new FilePath(build.getWorkspace(), "");
-		RemoteData workspaceData = remoteWorkspace.act(new RemoteWorkspaceSubDirs());
-		
+		RemoteData workspaceData = remoteWorkspace
+				.act(new RemoteWorkspaceSubDirs());
+
 		List<String> allSubDirs = workspaceData.getAllSubDirPaths();
-        String rootDir = workspaceData.getRootDirPath();
+		String rootDir = workspaceData.getRootDirPath();
 		TestDirPathFiltering testDirPaths = new TestDirPathFiltering(
 				allSubDirs, rootDir, testFolderName, testContainerDirs);
-		
+
 		List<String> testDirLocalPaths = testDirPaths.getFilteredPaths();
-		
-		 
-		serverUrl="http://"+workspaceData.getFQHN()+":"+mainTestSuitePath;
-		
+
+		serverUrl = "http://" + workspaceData.getFQHN() + ":"
+				+ mainTestSuitePath;
+
 		// Bind baseURL with test suites List<String> digestibleURLs =
 		List<String> testSuitesURLs = TestSuiteURLGenerator.getURLs(serverUrl,
 				testDirLocalPaths);
-		
+
 		listener.getLogger().println("");
-		
 
 		List<TestSuiteData> testSuiteDynamicList = new ArrayList<TestSuiteData>();
 
 		for (String url : testSuitesURLs) {
 			String name = url.replace(serverUrl, "").replace(
 					"/" + testFolderName, ""); //
-			testSuiteDynamicList.add(new TestSuiteDataExpansion(name,url,enableCacheCracker));		
+			testSuiteDynamicList.add(new TestSuiteDataExpansion(name, url,
+					enableCacheCracker));
 		}
-		
-		
 
-		
-		//Save included test suites local paths in specified logFilePath
-		remoteWorkspace.act(new WriteToRemoteWorkspace(logFilePath,testDirLocalPaths));
-		listener.getLogger().println("***************   Created file that includes local test suite paths that will run at "+logFilePath+"   ***************");
+		// Save included test suites local paths in specified logFilePath
+		remoteWorkspace.act(new WriteToRemoteWorkspace(logFilePath,
+				testDirLocalPaths));
+		listener.getLogger()
+				.println(
+						"***************   Created file that includes local test suite paths that will run at "
+								+ logFilePath + "   ***************");
 
-	
-
-
-		
-		for(TestSuiteData u : testSuiteDynamicList){
+		for (TestSuiteData u : testSuiteDynamicList) {
 			listener.getLogger().println(u.getTestName());
 			listener.getLogger().println(u.getTestUrl());
 			listener.getLogger().println("");
 
 		}
 
-	
-		testSuiteList = testSuiteDynamicList.toArray(new TestSuiteData[testSuiteDynamicList.size()]);
+		testSuiteList = testSuiteDynamicList
+				.toArray(new TestSuiteData[testSuiteDynamicList.size()]);
 		testswarmServerUrlCopy = new String(testswarmServerUrl);
 
 		testSuiteListCopy = new TestSuiteData[testSuiteList.length];
@@ -331,7 +321,6 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 
 		// check all required parameters are entered
 		CheckInputFields.check(this, build, listener);
-	
 
 		try {
 
@@ -363,7 +352,6 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 			wr.close();
 			rd.close();
 
-			
 			if (result == null || "".equals(result)) {
 				listener.error("no result from job submission");
 				build.setResult(Result.FAILURE);
@@ -511,7 +499,7 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 							+ resultBrowsers.get("failed")));
 					testResult.addComment(new Comment("passed - "
 							+ resultBrowsers.get("passed")));
-					
+
 				}
 
 				testResult.setDescription((String) ((Map) run.get("info"))
@@ -536,7 +524,6 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 			String tapStream = tapProducer.dump(testSet);
 			System.out.println(tapStream);
 
-		
 			File f = new File(build.getProject().getRootDir().getAbsolutePath()
 					+ File.separatorChar + "workspace", "testswarm.tap");
 
@@ -576,7 +563,6 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 			}
 		}
 	}
-
 
 	private String buildTestSuitesQueryString() throws Exception {
 		StringBuffer requestStr = new StringBuffer();
@@ -635,8 +621,8 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 		}
 		String json;
 		int jobStatus = UNKNOWN;
-		while (start + (minutesTimeOut * 60000) > System.currentTimeMillis()
-				&& jobStatus != ALL_PASSING && jobStatus != FAILURE_DONE) {
+		while (start + (minutesTimeOut * 60000) > System
+						.currentTimeMillis() && jobStatus != ALL_PASSING && jobStatus != FAILURE_DONE) {
 			json = this.resultsAnalyzer.grabPage(jobUrl);
 
 			System.out.println(json);
@@ -749,7 +735,5 @@ public class TestSwarmBuilder extends Builder implements Serializable {
 		}
 
 	}
-
-
 
 }

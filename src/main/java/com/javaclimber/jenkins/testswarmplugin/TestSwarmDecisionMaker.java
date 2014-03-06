@@ -14,6 +14,9 @@ import java.util.Map;
 
 public class TestSwarmDecisionMaker {
 
+	private int numOfFinishedTests = 0;
+	private boolean failuresOccured = false;
+
 	@SuppressWarnings("deprecation")
 	public String grabPage(String url) throws IOException {
 
@@ -24,7 +27,6 @@ public class TestSwarmDecisionMaker {
 		StringBuffer result = new StringBuffer();
 
 		try {
-
 			u = new URL(url);
 			is = u.openStream();
 			dis = new DataInputStream(new BufferedInputStream(is));
@@ -50,8 +52,11 @@ public class TestSwarmDecisionMaker {
 				.get("runs");
 
 		int allRunStatus = 0;
-		for (Map<String, Object> run : runs) {
+		int numOfTestSuites = runs.size();
 
+		numOfFinishedTests = 0;
+		for (Map<String, Object> run : runs) {
+			
 			listener.getLogger().println(
 					((Map<String, Object>) run.get("info")).get("name"));
 
@@ -71,12 +76,18 @@ public class TestSwarmDecisionMaker {
 			}
 			resultCount.remove("new");
 			listener.getLogger().println(resultCount);
-
+            
 			int runStatus = checkRunStatus(resultCount, minimumPassing,
 					listener);
-			if (runStatus > allRunStatus
-					|| runStatus == TestSwarmBuilder.FAILURE_IN_PROGRESS)
+		
+
+			if (numOfTestSuites == numOfFinishedTests && failuresOccured) {
+				allRunStatus = TestSwarmBuilder.FAILURE_DONE;
+			} else if (runStatus > allRunStatus
+					|| runStatus == TestSwarmBuilder.FAILURE_IN_PROGRESS) {
 				allRunStatus = runStatus;
+			}
+			
 
 		}
 
@@ -93,12 +104,20 @@ public class TestSwarmDecisionMaker {
 			return TestSwarmBuilder.IN_PROGRESS_NOT_ENOUGH_PASSING_NO_ERRORS;
 		}
 
-		//Integer notstarted = runResult.get("new");
+		// Integer notstarted = runResult.get("new");
 		Integer pass = runResult.get("passed");
 		Integer progress = runResult.get("progress");
 		Integer error = runResult.get("error");
 		Integer fail = runResult.get("failed");
 		Integer timeout = runResult.get("timeout");
+
+		if (progress == null && timeout == null) {
+			numOfFinishedTests++;
+		}
+
+		if (fail != null || error != null) {
+			failuresOccured = true;
+		}
 
 		if (error != null && error.intValue() > 0) {
 			listener.getLogger().println(
