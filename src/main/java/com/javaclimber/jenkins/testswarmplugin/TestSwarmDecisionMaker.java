@@ -15,7 +15,7 @@ import java.util.Map;
 public class TestSwarmDecisionMaker {
 
 	private int numOfFinishedTests = 0;
-	private boolean allTestsPass = true;
+	
 
 	@SuppressWarnings("deprecation")
 	public String grabPage(String url) throws IOException {
@@ -46,6 +46,7 @@ public class TestSwarmDecisionMaker {
 	@SuppressWarnings("unchecked")
 	public int jobStatus(Map<String, Object> resultMap, int minimumPassing,
 			BuildListener listener) {
+		boolean allTestsPass = true;
 
 		Map<String, Object> job = (Map<String, Object>) resultMap.get("job");
 		List<Map<String, Object>> runs = (ArrayList<Map<String, Object>>) job
@@ -80,7 +81,14 @@ public class TestSwarmDecisionMaker {
 			int runStatus = checkRunStatus(resultCount, minimumPassing,
 					listener);
 		
-
+			if(runStatus == TestSwarmBuilder.FAILURE_IN_PROGRESS){
+				allTestsPass = false;
+			}
+			listener.getLogger().println("****Status Returned" + runStatus);
+			listener.getLogger().println("****Num of finished tests" + numOfFinishedTests);
+			listener.getLogger().println("****All tests pass" + allTestsPass);
+			
+			
 			if (numOfTestSuites == numOfFinishedTests && !allTestsPass) {
 				allRunStatus = TestSwarmBuilder.FAILURE_DONE;
 			} else if (runStatus > allRunStatus
@@ -117,7 +125,6 @@ public class TestSwarmDecisionMaker {
 
 		
 		if (error != null && error.intValue() > 0) {
-			allTestsPass = false;
 			listener.getLogger().println(
 					error.intValue() + " test suites ends with ERROR");
 
@@ -126,8 +133,9 @@ public class TestSwarmDecisionMaker {
 				passCount = pass.intValue();
 
 			// TODO should consider fail
-			if ((error.intValue() + passCount) < minimumPassing)
+			if ((error.intValue() + passCount) < minimumPassing){
 				return TestSwarmBuilder.FAILURE_IN_PROGRESS;
+				}
 			else
 				// TODO need to check all tests to determine if done
 				// return TestSwarmBuilder.FAILURE_DONE;
@@ -136,7 +144,6 @@ public class TestSwarmDecisionMaker {
 		}
 
 		if (fail != null && fail.intValue() > 0) {
-			allTestsPass = false;
 			listener.getLogger().println(
 					fail.intValue() + " test suites ends with FAILURE");
 
@@ -145,8 +152,9 @@ public class TestSwarmDecisionMaker {
 				passCount = pass.intValue();
 
 			// TODO should consider errors
-			if ((fail.intValue() + passCount) < minimumPassing)
+			if ((fail.intValue() + passCount) < minimumPassing){
 				return TestSwarmBuilder.FAILURE_IN_PROGRESS;
+			}
 			else
 				// TODO need to check all tests to determine if done
 				// return TestSwarmBuilder.FAILURE_DONE;
