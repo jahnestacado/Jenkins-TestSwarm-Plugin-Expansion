@@ -15,7 +15,7 @@ import java.util.Map;
 public class TestSwarmDecisionMaker {
 
 	private int numOfFinishedTests = 0;
-	private boolean failuresOccured = false;
+	private boolean allTestsPass = true;
 
 	@SuppressWarnings("deprecation")
 	public String grabPage(String url) throws IOException {
@@ -81,7 +81,7 @@ public class TestSwarmDecisionMaker {
 					listener);
 		
 
-			if (numOfTestSuites == numOfFinishedTests && failuresOccured) {
+			if (numOfTestSuites == numOfFinishedTests && !allTestsPass) {
 				allRunStatus = TestSwarmBuilder.FAILURE_DONE;
 			} else if (runStatus > allRunStatus
 					|| runStatus == TestSwarmBuilder.FAILURE_IN_PROGRESS) {
@@ -115,11 +115,9 @@ public class TestSwarmDecisionMaker {
 			numOfFinishedTests++;
 		}
 
-		if (fail != null || error != null) {
-			failuresOccured = true;
-		}
-
+		
 		if (error != null && error.intValue() > 0) {
+			allTestsPass = false;
 			listener.getLogger().println(
 					error.intValue() + " test suites ends with ERROR");
 
@@ -138,6 +136,7 @@ public class TestSwarmDecisionMaker {
 		}
 
 		if (fail != null && fail.intValue() > 0) {
+			allTestsPass = false;
 			listener.getLogger().println(
 					fail.intValue() + " test suites ends with FAILURE");
 
