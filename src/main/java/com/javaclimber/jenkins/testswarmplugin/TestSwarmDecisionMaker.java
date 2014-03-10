@@ -82,14 +82,9 @@ public class TestSwarmDecisionMaker {
 					listener);
 		
 			if(runStatus == TestSwarmBuilder.FAILURE_IN_PROGRESS && numOfFinishedTests > 0){
-				listener.getLogger().println("****WTDFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFf");
-
 				allTestsPass = false;
 			}
-			listener.getLogger().println("****Status Returned" + runStatus);
-			listener.getLogger().println("****Num of finished tests" + numOfFinishedTests);
-			listener.getLogger().println("****All tests pass" + allTestsPass);
-			
+	
 			
 			if (numOfTestSuites == numOfFinishedTests && !allTestsPass) {
 				allRunStatus = TestSwarmBuilder.FAILURE_DONE;
