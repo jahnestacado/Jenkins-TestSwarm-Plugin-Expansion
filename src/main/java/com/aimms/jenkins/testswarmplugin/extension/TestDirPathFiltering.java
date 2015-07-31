@@ -1,4 +1,5 @@
 package com.aimms.jenkins.testswarmplugin.extension;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -6,16 +7,24 @@ import java.util.List;
 import java.util.Set;
 
 public class TestDirPathFiltering {
-	private List<String> paths = new ArrayList<String>();
+	private Set<String> paths = new LinkedHashSet<String>(); // Don't want
+																// duplicate
+																// path-elements
 	private final String testDirSuffix;
 	private final String sourceDir;
-	 private final List<String> includeDirList ;
-	 private final static String MODULE_DIVIDER_SYMBOL=",";
+	private List<String> includeDirList;
+	private final static String MODULE_DIVIDER_SYMBOL = ",";
+	private final boolean INCLUDE_ALL_DIRS;
 
-	public TestDirPathFiltering(List<String> subDirPaths, String sourceDir, String testFolderName,String  includedDirsInStrformat) {
+	public TestDirPathFiltering(List<String> subDirPaths, String sourceDir,
+			String testFolderName, String includedDirsInStrformat) {
 		this.sourceDir = sourceDir;
-		includeDirList = Arrays.asList(includedDirsInStrformat.split(MODULE_DIVIDER_SYMBOL));
-		testDirSuffix = "/"+testFolderName;
+		INCLUDE_ALL_DIRS = includeAllRootDir(includedDirsInStrformat);
+		if (!INCLUDE_ALL_DIRS) {
+			includeDirList = Arrays.asList(includedDirsInStrformat
+					.split(MODULE_DIVIDER_SYMBOL));
+		}
+		testDirSuffix = "/" + testFolderName;
 		for (String subDirPath : subDirPaths) {
 			filter(subDirPath);
 		}
@@ -23,10 +32,9 @@ public class TestDirPathFiltering {
 
 	private void filter(String path) {
 		path = path.replace(sourceDir, "");
-		if (mustBeIncluded(path)) {
+		if (INCLUDE_ALL_DIRS || mustBeIncluded(path)) {
 			if (path.endsWith(testDirSuffix)) {
 				paths.add(path);
-
 			} else if (path.contains(testDirSuffix + "/")) {
 				paths.add(getProperPath(path));
 			}
@@ -41,16 +49,33 @@ public class TestDirPathFiltering {
 	}
 
 	public List<String> getFilteredPaths() {
-		//Remove possible duplicate path-elements
-		Set<String> pathSet = new LinkedHashSet<String>(paths);
 		List<String> filteredPaths = new ArrayList<String>();
-		filteredPaths.addAll(pathSet);
+		filteredPaths.addAll(paths);
 		return filteredPaths;
 	}
-	
-	private boolean mustBeIncluded(String path){
+
+	private boolean mustBeIncluded(String path) {
 		String topDir = path.split("/")[0];
-		if(includeDirList.contains(topDir)) return true;
+		if (includeDirList.contains(topDir)
+				|| includeDirList.contains(path.replace(testDirSuffix, ""))
+				|| shouldIncludeNonTestParentFolder(path))
+			return true;
+		return false;
+	}
+
+	private boolean includeAllRootDir(String includedDirsInStrformat) {
+		if (includedDirsInStrformat.equals("*"))
+			return true;
+		return false;
+	}
+
+	private boolean shouldIncludeNonTestParentFolder(String path) {
+		for (String dirPath : includeDirList) {
+			if (path.contains(dirPath)
+					&& dirPath.split("/")[0].equals(path.split("/")[0])) {
+				return true;
+			}
+		}
 		return false;
 	}
 
